@@ -8,12 +8,15 @@ module.exports = {
     icon: "./assets/images/icon.png",
     userInterfaceStyle: "automatic",
     splash: {
-      image: "./assets/images/home-background-gears.png",
+      image: "./assets/images/icon.png",
       resizeMode: "contain",
       backgroundColor: "#0A0A0F",
     },
     ios: {
       supportsTablet: true,
+      // App Store Connect rejects a re-upload at the same build number, so this
+      // has to move for every upload even when `version` stays put.
+      buildNumber: "3",
       bundleIdentifier: "com.vjpisme-wiretrace",
       infoPlist: {
         NSCameraUsageDescription:
@@ -59,6 +62,18 @@ module.exports = {
       bundler: "metro",
     },
     plugins: [
+      // expo-speech-recognition's podspec requires iOS 16.4, and app/analyze.tsx
+      // and app/reader.tsx import it at module scope — below 16.4 autolinking
+      // silently drops the pod and both screens fail to load. The floor has to
+      // match the dependency, not the other way round.
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            deploymentTarget: "16.4",
+          },
+        },
+      ],
       "expo-font",
       "expo-router",
       "expo-web-browser",
